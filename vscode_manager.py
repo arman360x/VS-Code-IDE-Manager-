@@ -839,6 +839,9 @@ class VSCodeManagerGUI:
         self.remote_context_menu.add_separator()
         self.remote_context_menu.add_command(label="  Edit Profile", command=self.edit_remote_profile)
         self.remote_context_menu.add_command(label="  Copy SSH Command", command=self.copy_ssh_command)
+        self.remote_context_menu.add_command(label="  Copy Username", command=self.copy_username)
+        self.remote_context_menu.add_command(label="  Copy Password", command=self.copy_password)
+        self.remote_context_menu.add_command(label="  View Password", command=self.view_password)
         self.remote_context_menu.add_separator()
         self.remote_context_menu.add_command(label="  Delete Profile", command=self.delete_remote_profile)
 
@@ -1247,6 +1250,75 @@ class VSCodeManagerGUI:
             self.root.clipboard_clear()
             self.root.clipboard_append(cmd)
             self.status_var.set("SSH command copied to clipboard")
+
+    def copy_username(self):
+        """Copy username to clipboard"""
+        profile, _ = self.get_selected_remote_profile()
+        if profile:
+            if profile.username:
+                self.root.clipboard_clear()
+                self.root.clipboard_append(profile.username)
+                self.status_var.set("Username copied to clipboard")
+            else:
+                self.status_var.set("No username configured for this profile")
+
+    def copy_password(self):
+        """Copy password to clipboard"""
+        profile, _ = self.get_selected_remote_profile()
+        if profile:
+            if profile.password:
+                self.root.clipboard_clear()
+                self.root.clipboard_append(profile.password)
+                self.status_var.set("Password copied to clipboard")
+            else:
+                self.status_var.set("No password configured for this profile")
+
+    def view_password(self):
+        """Show password in a dialog"""
+        profile, _ = self.get_selected_remote_profile()
+        if profile:
+            if profile.password:
+                # Create a custom dialog to show password
+                dialog = tk.Toplevel(self.root)
+                dialog.title("View Password")
+                dialog.geometry("400x150")
+                dialog.configure(bg=Colors.BG_SECONDARY)
+                dialog.transient(self.root)
+                dialog.grab_set()
+
+                # Center the dialog
+                dialog.update_idletasks()
+                x = self.root.winfo_x() + (self.root.winfo_width() - 400) // 2
+                y = self.root.winfo_y() + (self.root.winfo_height() - 150) // 2
+                dialog.geometry(f"+{x}+{y}")
+
+                # Profile name label
+                name_label = tk.Label(dialog, text=f"Password for: {profile.name}",
+                                     font=("Segoe UI", 11, "bold"), fg=Colors.TEXT_PRIMARY,
+                                     bg=Colors.BG_SECONDARY)
+                name_label.pack(pady=(20, 10))
+
+                # Password display
+                password_frame = tk.Frame(dialog, bg=Colors.BG_TERTIARY, padx=10, pady=8)
+                password_frame.pack(padx=20, fill=tk.X)
+
+                password_entry = tk.Entry(password_frame, font=("Consolas", 11),
+                                         fg=Colors.ACCENT_PRIMARY, bg=Colors.BG_TERTIARY,
+                                         relief="flat", readonlybackground=Colors.BG_TERTIARY,
+                                         selectbackground=Colors.ACCENT_PRIMARY,
+                                         selectforeground=Colors.TEXT_PRIMARY, width=40)
+                password_entry.insert(0, profile.password)
+                password_entry.configure(state="readonly")
+                password_entry.pack()
+
+                # Close button
+                close_btn = PremiumButton(dialog, text="Close", command=dialog.destroy,
+                                         width=80, height=30)
+                close_btn.pack(pady=15)
+
+                dialog.focus_set()
+            else:
+                messagebox.showinfo("No Password", "No password configured for this profile.\nSSH key authentication may be used instead.")
 
     def open_folder(self):
         """Open a folder in new VS Code instance"""
