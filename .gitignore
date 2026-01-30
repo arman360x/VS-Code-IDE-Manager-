@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+*.spec
+
+# Virtual environments
+venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Windows
+*.exe
+Thumbs.db
+Desktop.ini
+
+# Config files (contain sensitive data)
+.vscode_manager_config.json
+
+# Temporary files
+*.tmp
+*.temp
+*.log
